@@ -2,31 +2,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain.agents import AgentState, create_agent
+from langchain.agents import create_agent
 from langchain.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
+from core.schemas import WeddingSchema
 
 from core.agent_tools import (call_flight_agent, call_music_agent,
-                              call_venue_agent)
+                              call_venue_agent, update_wedding_state)
 from core.prompts import main_system_prompt
-
-
-class WeddingSchema(AgentState):
-    current_location: str
-    destination: str
-    theme: str
-    music: list[str]
-    budget: int
-    venues: str
-    date: str
-    guest_count: int
-
 
 
 def main():
     main_agent = create_agent(
         model="gpt-5-nano",
-        tools=[call_flight_agent, call_venue_agent, call_music_agent],
+        tools=[call_flight_agent, call_venue_agent, call_music_agent, update_wedding_state],
         checkpointer=InMemorySaver(),
         state_schema=WeddingSchema,
         system_prompt=main_system_prompt,
